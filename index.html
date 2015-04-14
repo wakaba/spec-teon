@@ -1,13 +1,20 @@
-<!DOCTYPE html><html class="formal-specification anolis" lang=en><head><title>TEON</title>
-<link href=http://suika.suikawiki.org/www/style/html/spec rel=stylesheet>
+<!DOCTYPE html><html lang=en><head><title>TEON</title>
+<link href=spec.css rel=stylesheet>
 
-</head><body><hgroup>
+</head><body><header>
+<hgroup>
 <h1>TEON</h1>
 <h2>Living Standard — 14 April 2015</h2>
 </hgroup>
 
+<dl>
+  <dt>Latest version</dt><dd><a href=https://wakaba.github.io/spec-teon/>https://wakaba.github.io/spec-teon/</a>
+  </dd><dt>Version history</dt><dd><a href=https://github.com/wakaba/spec-teon/commits/gh-pages>https://github.com/wakaba/spec-teon/commits/gh-pages</a>
+</dd></dl>
+</header>
+
 <section>
-<h2 class="no-toc no-num" id=table-of-contents>Table of contents</h2>
+<h1 class="no-toc no-num" id=table-of-contents>Table of contents</h1>
 
 <!--begin-toc-->
 <ol class=toc>
@@ -18,12 +25,13 @@
   <ol>
    <li><a href=#serialization><span class=secno>4.1 </span>Serialization</a></li>
    <li><a href=#parsing><span class=secno>4.2 </span>Parsing</a></li></ol></li>
+ <li><a href=#identification><span class=secno>5 </span>Identification</a></li>
  <li><a class=no-num href=#author>Author</a></li></ol>
 <!--end-toc-->
 </section>
 
 <section>
-<h2 id=introduction><span class=secno>1 </span>Introduction</h2>
+<h1 id=introduction><span class=secno>1 </span>Introduction</h1>
 
 <p>TEON is a serialization format for name/value pairs.
 
@@ -31,7 +39,7 @@
 write by hand.  It is easy to compare <a href=#teon-text title="TEON text">TEON
 texts</a> in line-by-line basis.
 
-</p><div class=memo>
+</p><div class=note>
 <p>That is, it should not be difficult to fix conflicting
 version-controlled TEON file revisions.
 </p></div>
@@ -43,7 +51,7 @@ implementations.
 </p></section>
 
 <section>
-<h2 id=definitions><span class=secno>2 </span>Definitions</h2>
+<h1 id=definitions><span class=secno>2 </span>Definitions</h1>
 
 <p>The key words "<em class=rfc2119>MUST</em>",
 "<em class=rfc2119>MUST NOT</em>", and "<em class=rfc2119>SHOULD</em>"
@@ -62,7 +70,7 @@ the <a href=https://encoding.spec.whatwg.org/>Encoding Standard</a>.
 </p></section>
 
 <section>
-<h2 id=data-model><span class=secno>3 </span>Data model</h2>
+<h1 id=data-model><span class=secno>3 </span>Data model</h1>
 
 <p>A <dfn id=teon-document>TEON document</dfn> has a set of <dfn id=scalar-field title="scalar
 field">scalar fields</dfn>, a set of <dfn id=enumeration-field title="enumeration
@@ -90,7 +98,7 @@ ordered list of zero or more <a href=#string title=string>strings</a>.
 point">code points</a>.  It <em class=rfc2119>MUST NOT</em> contain
 a <a href=#code-point>code point</a> that is not a <a href=#scalar-value>scalar value</a>.
 
-</p><div class=memo>
+</p><div class=note>
 <p>A conforming <a href=#teon-document>TEON document</a> cannot contain any
 surrogate <a href=#code-point>code point</a>.
 </p></div>
@@ -98,7 +106,7 @@ surrogate <a href=#code-point>code point</a>.
 </section>
 
 <section>
-<h2 id=syntax><span class=secno>4 </span>Syntax</h2>
+<h1 id=syntax><span class=secno>4 </span>Syntax</h1>
 
 <p>A <dfn id=teon-file>TEON file</dfn> is a <a href=#utf-8>utf-8</a>-encoded <a href=#teon-document>TEON
 document</a>.
@@ -106,7 +114,7 @@ document</a>.
 </p><p>A <dfn id=teon-text>TEON text</dfn> is zero or more <a href=#teon-line title="TEON line">TEON
 line, separated by a <span>newline</span>.
 
-</a></p><div class=memo>
+</a></p><div class=note>
 <p>A <a href=#teon-text>TEON text</a> represents a <a href=#teon-document>TEON document</a>.
 </p></div>
 
@@ -155,7 +163,7 @@ contain <a href=#escape>escape</a> <code>\C</code>.
 </p><p>An <dfn id=escape>escape</dfn> is a <code>\</code> character followed by
 <code>r</code>, <code>n</code>, <code>C</code>, or <code>\</code>.
 
-</p><div class=memo>
+</p><div class=note>
 <p><a href=#escape title=escape>Escapes</a> <code>\r</code>, <code>\n</code>,
 <code>\C</code>, and <code>\\</code> represent <code>U+000D</code>,
 <code>U+000A</code>, <code>U+003A</code>, and <code>U+005C</code>,
@@ -167,23 +175,30 @@ followed by a <code>U+000A</code> character.
 It <em class=rfc2119>SHOULD</em> be a <code>U+000A</code> character.
 
 </p><section>
-<h3 id=serialization><span class=secno>4.1 </span>Serialization</h3>
+<h1 id=serialization><span class=secno>4.1 </span>Serialization</h1>
 
-<p class=ed>...
+<p class=XXX>...
 
 </p></section>
 
 <section>
-<h3 id=parsing><span class=secno>4.2 </span>Parsing</h3>
+<h1 id=parsing><span class=secno>4.2 </span>Parsing</h1>
 
-<p class=ed>...
+<p class=XXX>...
 
 </p></section>
 
 </section>
 
 <section>
-<h2 class=no-num id=author>Author</h2>
+<h1 id=identification><span class=secno>5 </span>Identification</h1>
+
+<p class=XXX>...
+
+</p></section>
+
+<section>
+<h1 class=no-num id=author>Author</h1>
 
 <p>This document is written
 by <a href=http://suika.suikawiki.org/~wakaba/who? rel=author>Wakaba</a> &lt;wakaba@suikawiki.org&gt;.
