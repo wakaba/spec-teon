@@ -1,0 +1,196 @@
+<!DOCTYPE html><html class="formal-specification anolis" lang=en><head><title>TEON</title>
+<link href=http://suika.suikawiki.org/www/style/html/spec rel=stylesheet>
+
+</head><body><hgroup>
+<h1>TEON</h1>
+<h2>Living Standard — 14 April 2015</h2>
+</hgroup>
+
+<section>
+<h2 class="no-toc no-num" id=table-of-contents>Table of contents</h2>
+
+<!--begin-toc-->
+<ol class=toc>
+ <li><a href=#introduction><span class=secno>1 </span>Introduction</a></li>
+ <li><a href=#definitions><span class=secno>2 </span>Definitions</a></li>
+ <li><a href=#data-model><span class=secno>3 </span>Data model</a></li>
+ <li><a href=#syntax><span class=secno>4 </span>Syntax</a>
+  <ol>
+   <li><a href=#serialization><span class=secno>4.1 </span>Serialization</a></li>
+   <li><a href=#parsing><span class=secno>4.2 </span>Parsing</a></li></ol></li>
+ <li><a class=no-num href=#author>Author</a></li></ol>
+<!--end-toc-->
+</section>
+
+<section>
+<h2 id=introduction><span class=secno>1 </span>Introduction</h2>
+
+<p>TEON is a serialization format for name/value pairs.
+
+</p><p><a href=#teon-text title="TEON text">TEON texts</a> are easy to read and
+write by hand.  It is easy to compare <a href=#teon-text title="TEON text">TEON
+texts</a> in line-by-line basis.
+
+</p><div class=memo>
+<p>That is, it should not be difficult to fix conflicting
+version-controlled TEON file revisions.
+</p></div>
+
+<p>It is easy to implement in any platform or language.  It is
+well-defined such that there can be multiple interoerable
+implementations.
+
+</p></section>
+
+<section>
+<h2 id=definitions><span class=secno>2 </span>Definitions</h2>
+
+<p>The key words "<em class=rfc2119>MUST</em>",
+"<em class=rfc2119>MUST NOT</em>", and "<em class=rfc2119>SHOULD</em>"
+in the normative parts of this document are to be interpreted as
+described in <a href=http://tools.ietf.org/html/rfc2119>RFC
+2119</a>.
+
+</p><p>Terms <a href=https://encoding.spec.whatwg.org/#code-point><dfn id=code-point>code
+point</dfn></a>,
+<a href=https://encoding.spec.whatwg.org/#scalar-value><dfn id=scalar-value>scalar
+value</dfn></a>,
+and <a href=https://encoding.spec.whatwg.org/#utf-8><dfn id=utf-8>utf-8</dfn></a>
+are defined in
+the <a href=https://encoding.spec.whatwg.org/>Encoding Standard</a>.
+
+</p></section>
+
+<section>
+<h2 id=data-model><span class=secno>3 </span>Data model</h2>
+
+<p>A <dfn id=teon-document>TEON document</dfn> has a set of <dfn id=scalar-field title="scalar
+field">scalar fields</dfn>, a set of <dfn id=enumeration-field title="enumeration
+field">enumeration fields</dfn>, and a set of
+<dfn id=list-field title="list field">list fields</dfn>.  Any item in these sets,
+referred to as a <dfn id=field>field</dfn>, is a pair of <a href=#field-name>field
+name</a> and <dfn id=field-value>field value</dfn>.
+
+</p><p>A <dfn id=field-name>field name</dfn> is a non-empty <a href=#string>string</a>.  There
+cannot be more than one <a href=#field title=field>fields</a> with
+same <a href=#field-name>field name</a> in a set.
+
+</p><p>The <a href=#field-value>field value</a> of a <a href=#scalar-field>scalar field</a> is
+a <a href=#string>string</a>.
+
+</p><p>The <a href=#field-value>field value</a> of an <a href=#enumeration-field>enumeration field</a>
+is a set of zero or more <a href=#string title=string>strings</a>.  There
+cannot be more than one same <a href=#string title=string>strings</a> in
+a <a href=#field-value>field value</a>.
+
+</p><p>The <a href=#field-value>field value</a> of a <a href=#list-field>list field</a> is an
+ordered list of zero or more <a href=#string title=string>strings</a>.
+
+</p><p>A <dfn id=string>string</dfn> is a sequence of zero or more <a href=#code-point title="code
+point">code points</a>.  It <em class=rfc2119>MUST NOT</em> contain
+a <a href=#code-point>code point</a> that is not a <a href=#scalar-value>scalar value</a>.
+
+</p><div class=memo>
+<p>A conforming <a href=#teon-document>TEON document</a> cannot contain any
+surrogate <a href=#code-point>code point</a>.
+</p></div>
+
+</section>
+
+<section>
+<h2 id=syntax><span class=secno>4 </span>Syntax</h2>
+
+<p>A <dfn id=teon-file>TEON file</dfn> is a <a href=#utf-8>utf-8</a>-encoded <a href=#teon-document>TEON
+document</a>.
+
+</p><p>A <dfn id=teon-text>TEON text</dfn> is zero or more <a href=#teon-line title="TEON line">TEON
+line, separated by a <span>newline</span>.
+
+</a></p><div class=memo>
+<p>A <a href=#teon-text>TEON text</a> represents a <a href=#teon-document>TEON document</a>.
+</p></div>
+
+<p>A <dfn id=teon-line>TEON line</dfn> consists of zero or more <a href=#code-point title="code
+point">code points</a> other than <code>U+000D</code>
+and <code>U+000A</code>.  It is either a <a href=#scalar-line>scalar line</a>,
+<a href=#enumeration-line>enumeration line</a>, <a href=#list-line>list line</a>, <a href=#empty-line>empty
+line</a>, or <a href=#invalid-line>invalid line</a>.
+
+</p><p>A <dfn id=scalar-line>scalar line</dfn> is a <code>$</code> character followed by
+an <a href=#escaped-field-name>escaped field name</a> followed by a <code>:</code>
+character followed by an <span>escaped value</span>.
+There <em class=rfc2119>MUST NOT</em> be more than
+one <a href=#scalar-line title="scalar line">scalar lines</a> with
+same <a href=#escaped-field-name>escaped field name</a>.
+
+</p><p>An <dfn id=enumeration-line>enumeration line</dfn> is a <code>&amp;</code> character
+followed by an <a href=#escaped-field-name>escaped field name</a> followed by
+a <code>:</code> character followed by an <a href=#escaped-field-value>escaped field
+value</a>.  There <em class=rfc2119>MUST NOT</em> be more than
+one <a href=#enumeration-line title="enumeration line">enumeration lines</a> with same
+pair of <a href=#escaped-field-name>escaped field name</a> and <a href=#escaped-field-value>escaped field
+value</a>.
+
+</p><p>A <dfn id=list-line>list line</dfn> is a <code>@</code> character followed by
+an <a href=#escaped-field-name>escaped field name</a> followed by a <code>:</code>
+character followed by an <a href=#escaped-field-value>escaped field value</a>.
+
+</p><p>An <dfn id=empty-line>empty line</dfn> is the empty string.
+
+</p><p>Any other <a href=#teon-line>TEON line</a> is an <dfn id=invalid-line>invalid line</dfn>.
+There <em class=rfc2119>MUST NOT</em> be any <a href=#invalid-line>invalid
+line</a>.
+
+</p><p>An <dfn id=escaped-field-name>escaped field name</dfn> is one or more sequence of
+either <a href=#code-point>code point</a> other
+than <code>U+000D</code>, <code>U+000A</code>, <code>:</code>,
+and <code>\</code> or <a href=#escape>escape</a>.
+
+</p><p>An <dfn id=escaped-field-value>escaped field value</dfn> is zero or more sequence of
+either <a href=#code-point>code point</a> other
+than <code>U+000D</code>, <code>U+000A</code>, and <code>\</code>
+or <a href=#escape>escape</a>.  It <em class=rfc2119>MUST NOT</em>
+contain <a href=#escape>escape</a> <code>\C</code>.
+
+</p><p>An <dfn id=escape>escape</dfn> is a <code>\</code> character followed by
+<code>r</code>, <code>n</code>, <code>C</code>, or <code>\</code>.
+
+</p><div class=memo>
+<p><a href=#escape title=escape>Escapes</a> <code>\r</code>, <code>\n</code>,
+<code>\C</code>, and <code>\\</code> represent <code>U+000D</code>,
+<code>U+000A</code>, <code>U+003A</code>, and <code>U+005C</code>,
+respectively.
+</p></div>
+
+<p>A <dfn id=newline>newline</dfn> is an optional <code>U+000D</code> character,
+followed by a <code>U+000A</code> character.
+It <em class=rfc2119>SHOULD</em> be a <code>U+000A</code> character.
+
+</p><section>
+<h3 id=serialization><span class=secno>4.1 </span>Serialization</h3>
+
+<p class=ed>...
+
+</p></section>
+
+<section>
+<h3 id=parsing><span class=secno>4.2 </span>Parsing</h3>
+
+<p class=ed>...
+
+</p></section>
+
+</section>
+
+<section>
+<h2 class=no-num id=author>Author</h2>
+
+<p>This document is written
+by <a href=http://suika.suikawiki.org/~wakaba/who? rel=author>Wakaba</a> &lt;wakaba@suikawiki.org&gt;.
+
+</p><p>This document is developed as part of the <i>TR project</i>.
+
+</p><p>Per <a href=https://creativecommons.org/publicdomain/zero/1.0/>CC0</a>,
+to the extent possible under law, the author has waived all copyright
+and related or neighboring rights to this work.
+</p></section></body></html>
