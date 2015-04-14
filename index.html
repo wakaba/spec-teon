@@ -23,9 +23,9 @@
  <li><a href=#data-model><span class=secno>3 </span>Data model</a></li>
  <li><a href=#syntax><span class=secno>4 </span>Syntax</a>
   <ol>
-   <li><a href=#serialization><span class=secno>4.1 </span>Serialization</a></li>
-   <li><a href=#parsing><span class=secno>4.2 </span>Parsing</a></li></ol></li>
- <li><a href=#identification><span class=secno>5 </span>Identification</a></li>
+   <li><a href=#parsing><span class=secno>4.1 </span>Parsing</a></li>
+   <li><a href=#serialization><span class=secno>4.2 </span>Serialization</a></li></ol></li>
+ <li><a href=#identifiers><span class=secno>5 </span>Identifiers</a></li>
  <li><a class=no-num href=#author>Author</a></li></ol>
 <!--end-toc-->
 </section>
@@ -33,7 +33,9 @@
 <section>
 <h1 id=introduction><span class=secno>1 </span>Introduction</h1>
 
-<p>TEON is a serialization format for name/value pairs.
+<p><i>This section is non-normative.</i>
+
+</p><p>TEON is a serialization format for name/value pairs.
 
 </p><p><a href=#teon-text title="TEON text">TEON texts</a> are easy to read and
 write by hand.  It is easy to compare <a href=#teon-text title="TEON text">TEON
@@ -53,17 +55,38 @@ implementations.
 <section>
 <h1 id=definitions><span class=secno>2 </span>Definitions</h1>
 
+<p>All <!--diagrams, examples, and--> notes in this specification are
+non-normative, as are all sections explicitly marked
+non-normative. Everything else in this specification is normative.
+
+</p><div class=note>
+
+<p>Notes are shown like this.
+
+</p></div>
+
 <p>The key words "<em class=rfc2119>MUST</em>",
-"<em class=rfc2119>MUST NOT</em>", and "<em class=rfc2119>SHOULD</em>"
-in the normative parts of this document are to be interpreted as
-described in <a href=http://tools.ietf.org/html/rfc2119>RFC
-2119</a>.
+"<em class=rfc2119>MUST NOT</em>", "<em class=rfc2119>SHOULD</em>",
+and "<em class=rfc2119>MAY</em>" in the normative parts of this
+document are to be interpreted as described
+in <a href=http://tools.ietf.org/html/rfc2119>RFC 2119</a>.
+
+</p><p>Conformance requirements phrased as algorithms or specific steps
+<em class=rfc2119>MAY</em> be implemented in any manner, so long as
+the end result is equivalent.
+
+</p><p>Implementations <em class=rfc2119>MAY</em> impose
+implementation-specific limits on otherwise unconstrained inputs,
+e.g. to prevent denial of service attacks, to guard against running
+out of memory, or to work around platform-specific limitations.
 
 </p><p>Terms <a href=https://encoding.spec.whatwg.org/#code-point><dfn id=code-point>code
 point</dfn></a>,
 <a href=https://encoding.spec.whatwg.org/#scalar-value><dfn id=scalar-value>scalar
 value</dfn></a>,
-and <a href=https://encoding.spec.whatwg.org/#utf-8><dfn id=utf-8>utf-8</dfn></a>
+<a href=https://encoding.spec.whatwg.org/#utf-8><dfn id=utf-8>utf-8</dfn></a>,
+and
+<a href=https://encoding.spec.whatwg.org/#utf-8-decode><dfn id=utf-8-decode>utf-8 decode</dfn></a>
 are defined in
 the <a href=https://encoding.spec.whatwg.org/>Encoding Standard</a>.
 
@@ -103,6 +126,13 @@ a <a href=#code-point>code point</a> that is not a <a href=#scalar-value>scalar 
 surrogate <a href=#code-point>code point</a>.
 </p></div>
 
+<div class=note>
+
+<p>Semantics of data structure represented by a <a href=#teon-document>TEON
+document</a> is application-dependent.
+
+</p></div>
+
 </section>
 
 <section>
@@ -111,14 +141,19 @@ surrogate <a href=#code-point>code point</a>.
 <p>A <dfn id=teon-file>TEON file</dfn> is a <a href=#utf-8>utf-8</a>-encoded <a href=#teon-document>TEON
 document</a>.
 
-</p><p>A <dfn id=teon-text>TEON text</dfn> is zero or more <a href=#teon-line title="TEON line">TEON
-line, separated by a <span>newline</span>.
+</p><div class=note>
 
-</a></p><div class=note>
-<p>A <a href=#teon-text>TEON text</a> represents a <a href=#teon-document>TEON document</a>.
+<p>This specification does not recommend or prohibit use of <code>BYTE
+ORDER MARK</code> (<code>BOM</code>).
+
 </p></div>
 
-<p>A <dfn id=teon-line>TEON line</dfn> consists of zero or more <a href=#code-point title="code
+<p>A <dfn id=teon-text>TEON text</dfn> is zero or more <a href=#teon-line title="TEON line">TEON
+line</a>, separated by a <a href=#newline>newline</a>.  A <a href=#teon-text>TEON
+text</a> represents a <a href=#teon-document>TEON document</a>.  Its semantics is
+defined by the <a href=#teon-parsing-algorithm>TEON parsing algorithm</a>.
+
+</p><p>A <dfn id=teon-line>TEON line</dfn> consists of zero or more <a href=#code-point title="code
 point">code points</a> other than <code>U+000D</code>
 and <code>U+000A</code>.  It is either a <a href=#scalar-line>scalar line</a>,
 <a href=#enumeration-line>enumeration line</a>, <a href=#list-line>list line</a>, <a href=#empty-line>empty
@@ -151,14 +186,19 @@ line</a>.
 
 </p><p>An <dfn id=escaped-field-name>escaped field name</dfn> is one or more sequence of
 either <a href=#code-point>code point</a> other
-than <code>U+000D</code>, <code>U+000A</code>, <code>:</code>,
-and <code>\</code> or <a href=#escape>escape</a>.
+than <code>U+000D</code>, <code>U+000A</code> and <code>:</code>,
+or <a href=#escape>escape</a>.  There <em class=rfc2119>MUST NOT</em> be
+a <code>\</code> character that is not part of an <a href=#escape>escape</a>
+in an <a href=#escaped-field-name>escaped field name</a>.
 
 </p><p>An <dfn id=escaped-field-value>escaped field value</dfn> is zero or more sequence of
-either <a href=#code-point>code point</a> other
-than <code>U+000D</code>, <code>U+000A</code>, and <code>\</code>
-or <a href=#escape>escape</a>.  It <em class=rfc2119>MUST NOT</em>
-contain <a href=#escape>escape</a> <code>\C</code>.
+either <a href=#code-point>code point</a> other than <code>U+000D</code>
+and <code>U+000A</code> or <a href=#escape>escape</a>.
+There <em class=rfc2119>MUST NOT</em> be a <code>\</code> character
+that is not part of an <a href=#escape>escape</a> in an <a href=#escaped-field-value>escaped field
+value</a>.  There <em class=rfc2119>MUST NOT</em> be
+an <a href=#escape>escape</a> <code>\C</code> in an <a href=#escaped-field-value>escaped field
+value</a>.
 
 </p><p>An <dfn id=escape>escape</dfn> is a <code>\</code> character followed by
 <code>r</code>, <code>n</code>, <code>C</code>, or <code>\</code>.
@@ -175,25 +215,321 @@ followed by a <code>U+000A</code> character.
 It <em class=rfc2119>SHOULD</em> be a <code>U+000A</code> character.
 
 </p><section>
-<h1 id=serialization><span class=secno>4.1 </span>Serialization</h1>
+<h1 id=parsing><span class=secno>4.1 </span>Parsing</h1>
 
-<p class=XXX>...
+<p>The <dfn id=teon-parsing-algorithm>TEON parsing algorithm</dfn>,
+which <em class=rfc2119>MUST</em> be used to parse a <a href=#teon-file>TEON
+file</a> or <a href=#teon-text>TEON text</a> into a <a href=#teon-document>TEON
+document</a>, is as follows:
 
-</p></section>
+</p><ol class=steps>
 
-<section>
-<h1 id=parsing><span class=secno>4.2 </span>Parsing</h1>
+<li>Let <var>input</var> be the input.
 
-<p class=XXX>...
+</li><li>If <var>input</var> is a <a href=#teon-file>TEON file</a>, run the steps
+to <a href=#utf-8-decode>utf-8 decode</a> <var>input</var> and set <var>input</var>
+to the output of the steps.
 
-</p></section>
+</li><li>Let <var>output</var> be an empty <a href=#teon-document>TEON document</a>.
+
+</li><li>Let <var>scalars</var>, <var>enums</var>, and <var>lists</var> be
+empty sets.
+
+</li><li>Split <var>input</var> by an optional <code>U+000D</code>
+character followed by a <code>U+000A</code> character.
+
+</li><li>For each substring <var>line</var> obtained by the previous step,
+in order, run these substeps:
+
+  <dl class=switch>
+
+  <dt>If <var>line</var> is a <a href=#scalar-line>scalar line</a></dt>
+  <dd>
+    <ol class=steps>
+      <li>Let <var>name</var> be the <a href=#escaped-field-name>escaped field name</a>
+      in <var>line</var>.
+      </li><li>Let <var>value</var> be the <a href=#escaped-field-value>escaped field value</a>
+      in <var>line</var>.
+      </li><li><span>Unescape</span> <var>name</var>.
+      </li><li><span>Unescape</span> <var>value</var>.
+      </li><li>If <var>scalars</var> contains a <a href=#field>field</a> whose
+      <span>field name is <var>name</var>, report a
+      <a href=#parse-error>parse error</a> and remove the <a href=#field>field</a>
+      from <var>scalars</var>.
+      </span></li><li>Add a <a href=#field>field</a> whose <span>field name is
+      <var>name</var> and <a href=#field-value>field value</a> is <span>value</span>
+      to <var>scalars</var>.
+    </span></li></ol>
+
+  </dd><dt>If <var>line</var> is an <a href=#enumeration-line>enumeration line</a></dt>
+  <dd>
+    <ol class=steps>
+      <li>Let <var>name</var> be the <a href=#escaped-field-name>escaped field name</a>
+      in <var>line</var>.
+      </li><li>Let <var>value</var> be the <a href=#escaped-field-value>escaped field value</a>
+      in <var>line</var>.
+      </li><li><span>Unescape</span> <var>name</var>.
+      </li><li><span>Unescape</span> <var>value</var>.
+      </li><li>If <var>enums</var> contains a <a href=#field>field</a> whose
+      <span>field name is <var>name</var>,
+        <ol>
+        <li>Let <var>set</var> be the <a href=#field-value>field value</a> of
+        the <a href=#field>field</a>.
+        </li><li>If <var>set</var> already contains <var>value</var>, report
+        a <a href=#parse-error>parse error</a>.
+        </li><li>Otherwise, add <var>value</var> to <var>set</var>.
+        </li></ol>
+      </span></li><li>Otherwise, add a <a href=#field>field</a> whose <span>field name is
+      <var>name</var> and <a href=#field-value>field value</a> is a set which only
+      contains <var>value</var> to <var>enums</var>.
+    </span></li></ol>
+
+  </dd><dt>If <var>line</var> is a <a href=#list-line>list line</a></dt>
+  <dd>
+    <ol class=steps>
+      <li>Let <var>name</var> be the <a href=#escaped-field-name>escaped field name</a>
+      in <var>line</var>.
+      </li><li>Let <var>value</var> be the <a href=#escaped-field-value>escaped field value</a>
+      in <var>line</var>.
+      </li><li><span>Unescape</span> <var>name</var>.
+      </li><li><span>Unescape</span> <var>value</var>.
+      </li><li>If <var>lists</var> contains a <a href=#field>field</a> whose
+      <span>field name is <var>name</var>,
+      append <var>value</var> to the list in the <a href=#field-value>field
+      value</a> of the <a href=#field>field</a>.
+      </span></li><li>Otherwise, add a <a href=#field>field</a> whose <span>field name is
+      <var>name</var> and <a href=#field-value>field value</a> is a list which
+      only contains <var>value</var> to <var>lists</var>.
+    </span></li></ol>
+
+  </dd><dt>If <var>line</var> is an <a href=#empty-line>empty line</a></dt>
+  <dd>Do nothing.
+
+  </dd><dt>Otherwise</dt>
+  <dd>Report a <a href=#parse-error>parse error</a>.
+
+  </dd></dl>
+
+</li><li>Set the set of <a href=#scalar-field title="scalar field">scalar fields</a>
+of <var>output</var> to <var>scalars</var>.
+
+</li><li>Set the set of <span title="enumerations field">enumeration
+fields</span> of <var>output</var> to <var>enums</var>.
+
+</li><li>Set the set of <a href=#list-field title="list field">list fields</a>
+of <var>output</var> to <var>lists</var>.
+
+</li><li>Return <var>output</var>.
+
+</li></ol>
+
+<p>To <span>unescape</span> a string <var>string</var>, the
+implementation <em class=rfc2119>MUST</em> run these steps:
+
+</p><ol class=steps>
+
+<li>Let <var>removed</var> be an empty list.
+
+</li><li>Let <var>i</var> be zero.
+
+</li><li><i>Loop</i>: Let <var>c</var> be the <var>i</var>th character
+in <var>string</var> (using 0-based index).  If there is
+no <var>i</var>th character in <var>string</var>, remove characters
+whose index is listed in <var>removed</var> from <var>string</var> and
+abort these steps.
+
+</li><li>If <var>c</var> is a <code>U+005C</code> character,
+
+  <ol>
+
+  <li>Increment <var>i</var> by one.
+
+  </li><li>Let <var>d</var> be the <var>i</var>th character
+  in <var>string</var>.  If there is no <var>i</var>th character
+  in <var>string</var>, report a <a href=#parse-error>parse error</a> and go to
+  the step whose label is <i>loop</i>.
+
+  </li><li>If <var>d</var> is a <code>r</code> character, replace
+  the <var>i</var>th character in <var>string</var> by
+  a <code>U+000D</code> character and add <var>i</var> − 1
+  to <var>removed</var>.
+
+  </li><li>Otherwise, if <var>d</var> is a <code>n</code> character,
+  replace the <var>i</var>th character in <var>string</var> by
+  a <code>U+000A</code> character and add <var>i</var> − 1
+  to <var>removed</var>.
+
+  </li><li>If <var>d</var> is a <code>C</code> character, replace
+  the <var>i</var>th character in <var>string</var> by
+  a <code>U+003A</code> character and add <var>i</var> − 1
+  to <var>removed</var>.  If <var>string</var> was originally
+  an <a href=#escaped-field-value>escaped field value</a>, report a <a href=#parse-error>parse
+  error</a>.
+
+  </li><li>If <var>d</var> is a <code>\</code> character, replace
+  the <var>i</var>th character in <var>string</var> by
+  a <code>U+005C</code> character and add <var>i</var> − 1
+  to <var>removed</var>.
+
+  </li><li>Otherwise, report a <a href=#parse-error>parse error</a>.
+
+  </li></ol>
+
+  </li><li>Increment <var>i</var> by one.
+
+  </li><li>Go to the step whose label is <i>loop</i>.
+
+</li></ol>
+
+<p>The parsing algorithm returns a <a href=#teon-document>TEON document</a>.  It
+might also report zero or more <dfn id=parse-error title="parse error">parse
+errors</dfn>.
+
+</p><div class=note>
+
+<p>This specification does not define how <a href=#parse-error title="parse
+error">parse errors</a> are handled by the application that uses
+the <a href=#teon-parsing-algorithm>TEON parsing algorithm</a>.  A TEON parser might not
+report <a href=#parse-error title="parse error">parse errors</a> as most
+applications other than conformance checkers will not need them.
+
+</p></div>
+
+<div class=note>
+
+<p>If the input <a href=#teon-text>TEON text</a> contains a surrogate <a href=#code-point>code
+point</a>, the output <a href=#teon-document>TEON document</a> can contain it.
+
+</p></div>
 
 </section>
 
 <section>
-<h1 id=identification><span class=secno>5 </span>Identification</h1>
+<h1 id=serialization><span class=secno>4.2 </span>Serialization</h1>
 
-<p class=XXX>...
+<p>The <dfn id=teon-serialization-algorithm>TEON serialization algorithm</dfn>,
+which <em class=rfc2119>SHOULD</em> be used to serialize a <a href=#teon-document>TEON
+document</a> into a <a href=#teon-text>TEON text</a>, is as follows:
+
+</p><ol class=steps>
+
+<li>Let <var>document</var> be the <a href=#teon-document>TEON document</a> to
+serialize.
+
+</li><li>Let <var>lines</var> be an empty list.
+
+</li><li>For each <a href=#scalar-field>scalar field</a> <var>field</var>
+in <var>document</var>, sorted by <span>field name using
+its <a href=#code-point>code point</a>,
+
+  <ol>
+
+  <li>Add a <code>$</code> character, followed by <a href=#field-name-escape title="field
+  name escape">field name escaped</a> <a href=#field-name>field name</a>
+  of <var>field</var>, followed by a <code>:</code> character,
+  followed by <a href=#field-value-escape title="field value escape">field value
+  escaped</a> <a href=#field-value>field value</a> of <var>field</var>,
+  to <var>lines</var>.
+
+  </li></ol>
+
+</span></li><li>For each <a href=#enumeration-field>enumeration field</a> <var>field</var>
+in <var>document</var>, sorted by <span>field name using
+its <a href=#code-point>code point</a>,
+
+  <ol>
+
+  <li>For each value <var>value</var> in <a href=#field-value>field value</a>
+  of <var>field</var>, sorted using its <a href=#code-point>code point</a>,
+
+    <ol>
+
+    <li>Add a <code>&amp;</code> character, followed by <a href=#field-name-escape title="field
+    name escape">field name escaped</a> <a href=#field-name>field name</a>
+    of <var>field</var>, followed by a <code>:</code> character,
+    followed by <a href=#field-value-escape title="field value escape">field value
+    escaped</a> <var>value</var>, to <var>lines</var>.
+
+    </li></ol>
+
+  </li></ol>
+
+</span></li><li>For each <a href=#list-field>list field</a> <var>field</var>
+in <var>document</var>, sorted by <span>field name using
+its <a href=#code-point>code point</a>,
+
+  <ol>
+
+  <li>For each value <var>value</var> in <a href=#field-value>field value</a>
+  of <var>field</var>, in order,
+
+    <ol>
+
+    <li>Add a <code>@</code> character, followed by <a href=#field-name-escape title="field
+    name escape">field name escaped</a> <a href=#field-name>field name</a>
+    of <var>field</var>, followed by a <code>:</code> character,
+    followed by <a href=#field-value-escape title="field value escape">field value
+    escaped</a> <var>value</var>, to <var>lines</var>.
+
+    </li></ol>
+
+  </li></ol>
+
+</span></li><li>Return the concatenation of the strings <var>lines</var>,
+separated by a <code>U+000A</code> character.
+
+</li></ol>
+
+<p>To <dfn id=field-value-escape>field value escape</dfn> a string <var>string</var>, the
+implementation <em class=rfc2119>MUST</em> run these steps:
+
+</p><ol class=steps>
+
+<li>Replace any occurrence of a <code>U+005C</code> character
+in <var>string</var> by <code>\\</code>.
+
+</li><li>Replace any occurrence of a <code>U+000D</code> character
+in <var>string</var> by <code>\r</code>.
+
+</li><li>Replace any occurrence of a <code>U+000A</code> character
+in <var>string</var> by <code>\n</code>.
+
+</li></ol>
+
+<p>To <dfn id=field-name-escape>field name escape</dfn> a string <var>string</var>, the
+implementation <em class=rfc2119>MUST</em> run these steps:
+
+</p><ol class=steps>
+
+<li><a href=#field-value-escape>Field value escape</a> <var>string</var>.
+
+</li><li>Replace any occurrence of a <code>U+003A</code> character
+in <var>string</var> by <code>\C</code>.
+
+</li></ol>
+
+<div class=note>
+
+<p>The <a href=#teon-text>TEON text</a> returned by the serialization algorithm
+can be non-conforming if the input <a href=#teon-document>TEON document</a> is
+non-conforming.
+
+</p></div>
+
+</section>
+
+</section>
+
+<section>
+<h1 id=identifiers><span class=secno>5 </span>Identifiers</h1>
+
+<p>A <a href=#teon-file>TEON file</a> or <a href=#teon-text>TEON text</a> can be labeled as 
+<span>MIME type</span> <dfn id=text/teon><code>text/teon</code></dfn>.  No parameter is
+defined for the type.
+
+</p><p>A <a href=#teon-file>TEON file</a> can use the file name
+extension <dfn id=.teon><code>.teon</code></dfn>.
+It <em class=rfc2119>MAY</em> use other extension.
 
 </p></section>
 

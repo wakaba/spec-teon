@@ -23,6 +23,8 @@
 <section>
 <h1>Introduction</h1>
 
+<p><i>This section is non-normative.</i>
+
 <p>TEON is a serialization format for name/value pairs.
 
 <p><span title="TEON text">TEON texts</span> are easy to read and
@@ -43,17 +45,38 @@ implementations.
 <section>
 <h1>Definitions</h1>
 
+<p>All <!--diagrams, examples, and--> notes in this specification are
+non-normative, as are all sections explicitly marked
+non-normative. Everything else in this specification is normative.
+
+<div class=note>
+
+<p>Notes are shown like this.
+
+</div>
+
 <p>The key words "<em class=rfc2119>MUST</em>",
-"<em class=rfc2119>MUST NOT</em>", and "<em class=rfc2119>SHOULD</em>"
-in the normative parts of this document are to be interpreted as
-described in <a href="http://tools.ietf.org/html/rfc2119">RFC
-2119</a>.
+"<em class=rfc2119>MUST NOT</em>", "<em class=rfc2119>SHOULD</em>",
+and "<em class=rfc2119>MAY</em>" in the normative parts of this
+document are to be interpreted as described
+in <a href="http://tools.ietf.org/html/rfc2119">RFC 2119</a>.
+
+<p>Conformance requirements phrased as algorithms or specific steps
+<em class=rfc2119>MAY</em> be implemented in any manner, so long as
+the end result is equivalent.
+
+<p>Implementations <em class=rfc2119>MAY</em> impose
+implementation-specific limits on otherwise unconstrained inputs,
+e.g. to prevent denial of service attacks, to guard against running
+out of memory, or to work around platform-specific limitations.
 
 <p>Terms <a href="https://encoding.spec.whatwg.org/#code-point"><dfn>code
 point</dfn></a>,
 <a href="https://encoding.spec.whatwg.org/#scalar-value"><dfn>scalar
 value</dfn></a>,
-and <a href="https://encoding.spec.whatwg.org/#utf-8"><dfn>utf-8</dfn></a>
+<a href="https://encoding.spec.whatwg.org/#utf-8"><dfn>utf-8</dfn></a>,
+and
+<a href="https://encoding.spec.whatwg.org/#utf-8-decode"><dfn>utf-8 decode</dfn></a>
 are defined in
 the <a href="https://encoding.spec.whatwg.org/">Encoding Standard</a>.
 
@@ -93,6 +116,13 @@ a <span>code point</span> that is not a <span>scalar value</span>.
 surrogate <span>code point</span>.
 </div>
 
+<div class=note>
+
+<p>Semantics of data structure represented by a <span>TEON
+document</span> is application-dependent.
+
+</div>
+
 </section>
 
 <section>
@@ -101,12 +131,17 @@ surrogate <span>code point</span>.
 <p>A <dfn>TEON file</dfn> is a <span>utf-8</span>-encoded <span>TEON
 document</span>.
 
-<p>A <dfn>TEON text</dfn> is zero or more <span title="TEON line">TEON
-line</dfn>, separated by a <span>newline</span>.
-
 <div class=note>
-<p>A <span>TEON text</span> represents a <span>TEON document</span>.
+
+<p>This specification does not recommend or prohibit use of <code>BYTE
+ORDER MARK</code> (<code>BOM</code>).
+
 </div>
+
+<p>A <dfn>TEON text</dfn> is zero or more <span title="TEON line">TEON
+line</span>, separated by a <span>newline</span>.  A <span>TEON
+text</span> represents a <span>TEON document</span>.  Its semantics is
+defined by the <span>TEON parsing algorithm</span>.
 
 <p>A <dfn>TEON line</dfn> consists of zero or more <span title="code
 point">code points</span> other than <code>U+000D</code>
@@ -141,14 +176,19 @@ line</span>.
 
 <p>An <dfn>escaped field name</dfn> is one or more sequence of
 either <span>code point</span> other
-than <code>U+000D</code>, <code>U+000A</code>, <code>:</code>,
-and <code>\</code> or <span>escape</span>.
+than <code>U+000D</code>, <code>U+000A</code> and <code>:</code>,
+or <span>escape</span>.  There <em class=rfc2119>MUST NOT</em> be
+a <code>\</code> character that is not part of an <span>escape</span>
+in an <span>escaped field name</span>.
 
 <p>An <dfn>escaped field value</dfn> is zero or more sequence of
-either <span>code point</span> other
-than <code>U+000D</code>, <code>U+000A</code>, and <code>\</code>
-or <span>escape</span>.  It <em class=rfc2119>MUST NOT</em>
-contain <span>escape</span> <code>\C</code>.
+either <span>code point</span> other than <code>U+000D</code>
+and <code>U+000A</code> or <span>escape</span>.
+There <em class=rfc2119>MUST NOT</em> be a <code>\</code> character
+that is not part of an <span>escape</span> in an <span>escaped field
+value</span>.  There <em class=rfc2119>MUST NOT</em> be
+an <span>escape</span> <code>\C</code> in an <span>escaped field
+value</span>.
 
 <p>An <dfn>escape</dfn> is a <code>\</code> character followed by
 <code>r</code>, <code>n</code>, <code>C</code>, or <code>\</code>.
@@ -165,25 +205,321 @@ followed by a <code>U+000A</code> character.
 It <em class=rfc2119>SHOULD</em> be a <code>U+000A</code> character.
 
 <section>
-<h1>Serialization</h1>
-
-<p class=XXX>...
-
-</section>
-
-<section>
 <h1>Parsing</h1>
 
-<p class=XXX>...
+<p>The <dfn>TEON parsing algorithm</dfn>,
+which <em class=rfc2119>MUST</em> be used to parse a <span>TEON
+file</span> or <span>TEON text</span> into a <span>TEON
+document</span>, is as follows:
+
+<ol class=steps>
+
+<li>Let <var>input</var> be the input.
+
+<li>If <var>input</var> is a <span>TEON file</span>, run the steps
+to <span>utf-8 decode</span> <var>input</var> and set <var>input</var>
+to the output of the steps.
+
+<li>Let <var>output</var> be an empty <span>TEON document</span>.
+
+<li>Let <var>scalars</var>, <var>enums</var>, and <var>lists</var> be
+empty sets.
+
+<li>Split <var>input</var> by an optional <code>U+000D</code>
+character followed by a <code>U+000A</code> character.
+
+<li>For each substring <var>line</var> obtained by the previous step,
+in order, run these substeps:
+
+  <dl class=switch>
+
+  <dt>If <var>line</var> is a <span>scalar line</span></dt>
+  <dd>
+    <ol class=steps>
+      <li>Let <var>name</var> be the <span>escaped field name</span>
+      in <var>line</var>.
+      <li>Let <var>value</var> be the <span>escaped field value</span>
+      in <var>line</var>.
+      <li><span>Unescape</span> <var>name</var>.
+      <li><span>Unescape</span> <var>value</var>.
+      <li>If <var>scalars</var> contains a <span>field</span> whose
+      <span>field name</var> is <var>name</var>, report a
+      <span>parse error</span> and remove the <span>field</span>
+      from <var>scalars</var>.
+      <li>Add a <span>field</span> whose <span>field name</var> is
+      <var>name</var> and <span>field value</span> is <span>value</span>
+      to <var>scalars</var>.
+    </ol>
+
+  <dt>If <var>line</var> is an <span>enumeration line</span></dt>
+  <dd>
+    <ol class=steps>
+      <li>Let <var>name</var> be the <span>escaped field name</span>
+      in <var>line</var>.
+      <li>Let <var>value</var> be the <span>escaped field value</span>
+      in <var>line</var>.
+      <li><span>Unescape</span> <var>name</var>.
+      <li><span>Unescape</span> <var>value</var>.
+      <li>If <var>enums</var> contains a <span>field</span> whose
+      <span>field name</var> is <var>name</var>,
+        <ol>
+        <li>Let <var>set</var> be the <span>field value</span> of
+        the <span>field</span>.
+        <li>If <var>set</var> already contains <var>value</var>, report
+        a <span>parse error</span>.
+        <li>Otherwise, add <var>value</var> to <var>set</var>.
+        </ol>
+      <li>Otherwise, add a <span>field</span> whose <span>field name</var> is
+      <var>name</var> and <span>field value</span> is a set which only
+      contains <var>value</var> to <var>enums</var>.
+    </ol>
+
+  <dt>If <var>line</var> is a <span>list line</span></dt>
+  <dd>
+    <ol class=steps>
+      <li>Let <var>name</var> be the <span>escaped field name</span>
+      in <var>line</var>.
+      <li>Let <var>value</var> be the <span>escaped field value</span>
+      in <var>line</var>.
+      <li><span>Unescape</span> <var>name</var>.
+      <li><span>Unescape</span> <var>value</var>.
+      <li>If <var>lists</var> contains a <span>field</span> whose
+      <span>field name</var> is <var>name</var>,
+      append <var>value</var> to the list in the <span>field
+      value</span> of the <span>field</span>.
+      <li>Otherwise, add a <span>field</span> whose <span>field name</var> is
+      <var>name</var> and <span>field value</span> is a list which
+      only contains <var>value</var> to <var>lists</var>.
+    </ol>
+
+  <dt>If <var>line</var> is an <span>empty line</span></dt>
+  <dd>Do nothing.
+
+  <dt>Otherwise</dt>
+  <dd>Report a <span>parse error</span>.
+
+  </dl>
+
+<li>Set the set of <span title="scalar field">scalar fields</span>
+of <var>output</var> to <var>scalars</var>.
+
+<li>Set the set of <span title="enumerations field">enumeration
+fields</span> of <var>output</var> to <var>enums</var>.
+
+<li>Set the set of <span title="list field">list fields</span>
+of <var>output</var> to <var>lists</var>.
+
+<li>Return <var>output</var>.
+
+</ol>
+
+<p>To <span>unescape</span> a string <var>string</var>, the
+implementation <em class=rfc2119>MUST</em> run these steps:
+
+<ol class=steps>
+
+<li>Let <var>removed</var> be an empty list.
+
+<li>Let <var>i</var> be zero.
+
+<li><i>Loop</i>: Let <var>c</var> be the <var>i</var>th character
+in <var>string</var> (using 0-based index).  If there is
+no <var>i</var>th character in <var>string</var>, remove characters
+whose index is listed in <var>removed</var> from <var>string</var> and
+abort these steps.
+
+<li>If <var>c</var> is a <code>U+005C</code> character,
+
+  <ol>
+
+  <li>Increment <var>i</var> by one.
+
+  <li>Let <var>d</var> be the <var>i</var>th character
+  in <var>string</var>.  If there is no <var>i</var>th character
+  in <var>string</var>, report a <span>parse error</span> and go to
+  the step whose label is <i>loop</i>.
+
+  <li>If <var>d</var> is a <code>r</code> character, replace
+  the <var>i</var>th character in <var>string</var> by
+  a <code>U+000D</code> character and add <var>i</var> &minus; 1
+  to <var>removed</var>.
+
+  <li>Otherwise, if <var>d</var> is a <code>n</code> character,
+  replace the <var>i</var>th character in <var>string</var> by
+  a <code>U+000A</code> character and add <var>i</var> &minus; 1
+  to <var>removed</var>.
+
+  <li>If <var>d</var> is a <code>C</code> character, replace
+  the <var>i</var>th character in <var>string</var> by
+  a <code>U+003A</code> character and add <var>i</var> &minus; 1
+  to <var>removed</var>.  If <var>string</var> was originally
+  an <span>escaped field value</span>, report a <span>parse
+  error</span>.
+
+  <li>If <var>d</var> is a <code>\</code> character, replace
+  the <var>i</var>th character in <var>string</var> by
+  a <code>U+005C</code> character and add <var>i</var> &minus; 1
+  to <var>removed</var>.
+
+  <li>Otherwise, report a <span>parse error</span>.
+
+  </ol>
+
+  <li>Increment <var>i</var> by one.
+
+  <li>Go to the step whose label is <i>loop</i>.
+
+</ol>
+
+<p>The parsing algorithm returns a <span>TEON document</span>.  It
+might also report zero or more <dfn title="parse error">parse
+errors</dfn>.
+
+<div class=note>
+
+<p>This specification does not define how <span title="parse
+error">parse errors</span> are handled by the application that uses
+the <span>TEON parsing algorithm</span>.  A TEON parser might not
+report <span title="parse error">parse errors</span> as most
+applications other than conformance checkers will not need them.
+
+</div>
+
+<div class=note>
+
+<p>If the input <span>TEON text</span> contains a surrogate <span>code
+point</span>, the output <span>TEON document</span> can contain it.
+
+</div>
+
+</section>
+
+<section>
+<h1>Serialization</h1>
+
+<p>The <dfn>TEON serialization algorithm</dfn>,
+which <em class=rfc2119>SHOULD</em> be used to serialize a <span>TEON
+document</span> into a <span>TEON text</span>, is as follows:
+
+<ol class=steps>
+
+<li>Let <var>document</var> be the <span>TEON document</span> to
+serialize.
+
+<li>Let <var>lines</var> be an empty list.
+
+<li>For each <span>scalar field</span> <var>field</var>
+in <var>document</var>, sorted by <span>field name</var> using
+its <span>code point</span>,
+
+  <ol>
+
+  <li>Add a <code>$</code> character, followed by <span title="field
+  name escape">field name escaped</span> <span>field name</span>
+  of <var>field</var>, followed by a <code>:</code> character,
+  followed by <span title="field value escape">field value
+  escaped</span> <span>field value</span> of <var>field</var>,
+  to <var>lines</var>.
+
+  </ol>
+
+<li>For each <span>enumeration field</span> <var>field</var>
+in <var>document</var>, sorted by <span>field name</var> using
+its <span>code point</span>,
+
+  <ol>
+
+  <li>For each value <var>value</var> in <span>field value</span>
+  of <var>field</var>, sorted using its <span>code point</span>,
+
+    <ol>
+
+    <li>Add a <code>&</code> character, followed by <span title="field
+    name escape">field name escaped</span> <span>field name</span>
+    of <var>field</var>, followed by a <code>:</code> character,
+    followed by <span title="field value escape">field value
+    escaped</span> <var>value</var>, to <var>lines</var>.
+
+    </ol>
+
+  </ol>
+
+<li>For each <span>list field</span> <var>field</var>
+in <var>document</var>, sorted by <span>field name</var> using
+its <span>code point</span>,
+
+  <ol>
+
+  <li>For each value <var>value</var> in <span>field value</span>
+  of <var>field</var>, in order,
+
+    <ol>
+
+    <li>Add a <code>@</code> character, followed by <span title="field
+    name escape">field name escaped</span> <span>field name</span>
+    of <var>field</var>, followed by a <code>:</code> character,
+    followed by <span title="field value escape">field value
+    escaped</span> <var>value</var>, to <var>lines</var>.
+
+    </ol>
+
+  </ol>
+
+<li>Return the concatenation of the strings <var>lines</var>,
+separated by a <code>U+000A</code> character.
+
+</ol>
+
+<p>To <dfn>field value escape</dfn> a string <var>string</var>, the
+implementation <em class=rfc2119>MUST</em> run these steps:
+
+<ol class=steps>
+
+<li>Replace any occurrence of a <code>U+005C</code> character
+in <var>string</var> by <code>\\</code>.
+
+<li>Replace any occurrence of a <code>U+000D</code> character
+in <var>string</var> by <code>\r</code>.
+
+<li>Replace any occurrence of a <code>U+000A</code> character
+in <var>string</var> by <code>\n</code>.
+
+</ol>
+
+<p>To <dfn>field name escape</dfn> a string <var>string</var>, the
+implementation <em class=rfc2119>MUST</em> run these steps:
+
+<ol class=steps>
+
+<li><span>Field value escape</span> <var>string</var>.
+
+<li>Replace any occurrence of a <code>U+003A</code> character
+in <var>string</var> by <code>\C</code>.
+
+</ol>
+
+<div class=note>
+
+<p>The <span>TEON text</span> returned by the serialization algorithm
+can be non-conforming if the input <span>TEON document</span> is
+non-conforming.
+
+</div>
 
 </section>
 
 </section>
 
 <section>
-<h1>Identification</h1>
+<h1>Identifiers</h1>
 
-<p class=XXX>...
+<p>A <span>TEON file</span> or <span>TEON text</span> can be labeled as 
+<span>MIME type</span> <dfn><code>text/teon</code></dfn>.  No parameter is
+defined for the type.
+
+<p>A <span>TEON file</span> can use the file name
+extension <dfn><code>.teon</code></dfn>.
+It <em class=rfc2119>MAY</em> use other extension.
 
 </section>
 
