@@ -4,7 +4,7 @@
 </head><body><header>
 <hgroup>
 <h1>TEON</h1>
-<h2>Living Standard — 14 April 2015</h2>
+<h2>Living Standard — 15 April 2015</h2>
 </hgroup>
 
 <dl>
@@ -26,6 +26,7 @@
    <li><a href=#parsing><span class=secno>4.1 </span>Parsing</a></li>
    <li><a href=#serialization><span class=secno>4.2 </span>Serialization</a></li></ol></li>
  <li><a href=#identifiers><span class=secno>5 </span>Identifiers</a></li>
+ <li><a class=no-num href=#tests-and-implementation>Tests and implementation</a></li>
  <li><a class=no-num href=#author>Author</a></li></ol>
 <!--end-toc-->
 </section>
@@ -210,9 +211,10 @@ value</a>.
 respectively.
 </p></div>
 
-<p>A <dfn id=newline>newline</dfn> is an optional <code>U+000D</code> character,
-followed by a <code>U+000A</code> character.
-It <em class=rfc2119>SHOULD</em> be a <code>U+000A</code> character.
+<p>A <dfn id=newline>newline</dfn> is either an optional <code>U+000D</code>
+character, followed by a <code>U+000A</code> character or
+a <code>U+000D</code> character.  It <em class=rfc2119>SHOULD</em> be
+a <code>U+000A</code> character.
 
 </p><section>
 <h1 id=parsing><span class=secno>4.1 </span>Parsing</h1>
@@ -235,8 +237,7 @@ to the output of the steps.
 </li><li>Let <var>scalars</var>, <var>enums</var>, and <var>lists</var> be
 empty sets.
 
-</li><li>Split <var>input</var> by an optional <code>U+000D</code>
-character followed by a <code>U+000A</code> character.
+</li><li>Split <var>input</var> by <a href=#newline title=newline>newlines</a>.
 
 </li><li>For each substring <var>line</var> obtained by the previous step,
 in order, run these substeps:
@@ -530,6 +531,17 @@ defined for the type.
 </p><p>A <a href=#teon-file>TEON file</a> can use the file name
 extension <dfn id=.teon><code>.teon</code></dfn>.
 It <em class=rfc2119>MAY</em> use other extension.
+
+</p></section>
+
+<section>
+<h1 class=no-num id=tests-and-implementation>Tests and implementation</h1>
+
+<p>There are <a href=https://github.com/wakaba/tests-teon>test
+data</a>.
+
+</p><p>There is a <a href=https://github.com/wakaba/perl-teon>Perl
+implementation</a>.
 
 </p></section>
 

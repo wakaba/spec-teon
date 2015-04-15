@@ -200,9 +200,10 @@ value</span>.
 respectively.
 </div>
 
-<p>A <dfn>newline</dfn> is an optional <code>U+000D</code> character,
-followed by a <code>U+000A</code> character.
-It <em class=rfc2119>SHOULD</em> be a <code>U+000A</code> character.
+<p>A <dfn>newline</dfn> is either an optional <code>U+000D</code>
+character, followed by a <code>U+000A</code> character or
+a <code>U+000D</code> character.  It <em class=rfc2119>SHOULD</em> be
+a <code>U+000A</code> character.
 
 <section>
 <h1>Parsing</h1>
@@ -225,8 +226,7 @@ to the output of the steps.
 <li>Let <var>scalars</var>, <var>enums</var>, and <var>lists</var> be
 empty sets.
 
-<li>Split <var>input</var> by an optional <code>U+000D</code>
-character followed by a <code>U+000A</code> character.
+<li>Split <var>input</var> by <span title=newline>newlines</span>.
 
 <li>For each substring <var>line</var> obtained by the previous step,
 in order, run these substeps:
@@ -520,6 +520,17 @@ defined for the type.
 <p>A <span>TEON file</span> can use the file name
 extension <dfn><code>.teon</code></dfn>.
 It <em class=rfc2119>MAY</em> use other extension.
+
+</section>
+
+<section>
+<h1 class=no-num>Tests and implementation</h1>
+
+<p>There are <a href="https://github.com/wakaba/tests-teon">test
+data</a>.
+
+<p>There is a <a href="https://github.com/wakaba/perl-teon">Perl
+implementation</a>.
 
 </section>
 
