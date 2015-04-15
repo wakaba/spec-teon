@@ -251,8 +251,8 @@ in order, run these substeps:
       in <var>line</var>.
       </li><li>Let <var>value</var> be the <a href=#escaped-field-value>escaped field value</a>
       in <var>line</var>.
-      </li><li><span>Unescape</span> <var>name</var>.
-      </li><li><span>Unescape</span> <var>value</var>.
+      </li><li><a href=#unescape>Unescape</a> <var>name</var>.
+      </li><li><a href=#unescape>Unescape</a> <var>value</var>.
       </li><li>If <var>scalars</var> contains a <a href=#field>field</a> whose
       <span>field name is <var>name</var>, report a
       <a href=#parse-error>parse error</a> and remove the <a href=#field>field</a>
@@ -269,8 +269,8 @@ in order, run these substeps:
       in <var>line</var>.
       </li><li>Let <var>value</var> be the <a href=#escaped-field-value>escaped field value</a>
       in <var>line</var>.
-      </li><li><span>Unescape</span> <var>name</var>.
-      </li><li><span>Unescape</span> <var>value</var>.
+      </li><li><a href=#unescape>Unescape</a> <var>name</var>.
+      </li><li><a href=#unescape>Unescape</a> <var>value</var>.
       </li><li>If <var>enums</var> contains a <a href=#field>field</a> whose
       <span>field name is <var>name</var>,
         <ol>
@@ -292,8 +292,8 @@ in order, run these substeps:
       in <var>line</var>.
       </li><li>Let <var>value</var> be the <a href=#escaped-field-value>escaped field value</a>
       in <var>line</var>.
-      </li><li><span>Unescape</span> <var>name</var>.
-      </li><li><span>Unescape</span> <var>value</var>.
+      </li><li><a href=#unescape>Unescape</a> <var>name</var>.
+      </li><li><a href=#unescape>Unescape</a> <var>value</var>.
       </li><li>If <var>lists</var> contains a <a href=#field>field</a> whose
       <span>field name is <var>name</var>,
       append <var>value</var> to the list in the <a href=#field-value>field
@@ -324,7 +324,7 @@ of <var>output</var> to <var>lists</var>.
 
 </li></ol>
 
-<p>To <span>unescape</span> a string <var>string</var>, the
+<p>To <dfn id=unescape>unescape</dfn> a string <var>string</var>, the
 implementation <em class=rfc2119>MUST</em> run these steps:
 
 </p><ol class=steps>
